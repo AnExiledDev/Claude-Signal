@@ -6,22 +6,25 @@ import SectionDivider from '~/components/base/SectionDivider.astro'
 import HeaderLink from '~/components/base/HeaderLink.astro'
 import SearchSwitch from '~/components/base/SearchSwitch.astro'
 import { Image } from 'astro:assets'
-import favicon from '../../public/favicon.svg'
+import logo from '../../public/logo.png'
 ---
 
 <HeaderGradient />
 <header>
   <div class="mx-auto global-layout-width flex justify-between px-6 sm:px-8 py-4 lg:px-8">
     <div class="flex gap-3 sm:gap-6 items-center flex-shrink-0">
-      <a href="/" class="pointer-events-auto select-none" transition:persist>
+      <a href="/" class="pointer-events-auto select-none flex items-center gap-2" transition:persist>
         <Image
-          src={favicon}
-          width={32}
-          height={32}
-          alt="Logo"
-          class="w-8 h-8 border-2 border-transparent dark:border-border"
+          src={logo}
+          width={36}
+          height={36}
+          alt="Claude Signal"
+          class="w-9 h-9"
           densities={[1, 2]}
         />
+        <span class="font-semibold text-lg hidden sm:inline bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+          Claude Signal
+        </span>
       </a>
       <div class="flex gap-1">
         {

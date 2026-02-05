@@ -27,24 +27,12 @@ export const SITE: Site = {
 
 export const HEADER_LINKS: Link[] = [
 	{
-		name: "Signals",
-		url: "/tags/signals",
-	},
-	{
-		name: "Deep Dives",
-		url: "/tags/deep-dives",
-	},
-	{
-		name: "Workflows",
-		url: "/tags/workflows",
-	},
-	{
-		name: "Guides",
-		url: "/tags/guides",
-	},
-	{
-		name: "All Posts",
+		name: "Posts",
 		url: "/posts",
+	},
+	{
+		name: "Categories",
+		url: "/tags",
 	},
 ];
 
@@ -87,7 +75,7 @@ export const FOOTER_LINKS: Link[] = [
 export const SOCIAL_LINKS: SocialLink[] = [
 	{
 		name: "github",
-		url: "https://github.com/AnExiledDev/Claude-Signal",
+		url: "https://github.com/AnExiledDev",
 		icon: "icon-[ri--github-fill]",
 	},
 ];
@@ -277,13 +265,18 @@ export const PHOTOS_CONFIG: PhotosConfig = {
 	introduce: "Here I will record some photos taken in daily life.",
 };
 
+// Analytics - uses environment variables from GitHub Secrets
+const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+const umamiServerUrl =
+	import.meta.env.PUBLIC_UMAMI_SERVER_URL || "https://cloud.umami.is/script.js";
+
 export const ANALYTICS_CONFIG: AnalyticsConfig = {
 	vercount: {
 		enabled: false,
 	},
 	umami: {
-		enabled: false,
-		websiteId: "Your websiteId in umami",
-		serverUrl: "https://cloud.umami.is/script.js",
+		enabled: !!umamiWebsiteId,
+		websiteId: umamiWebsiteId || "",
+		serverUrl: umamiServerUrl,
 	},
 };
