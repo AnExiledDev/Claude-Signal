@@ -34,6 +34,10 @@ export const HEADER_LINKS: Link[] = [
 		name: "Categories",
 		url: "/tags",
 	},
+	{
+		name: "Projects",
+		url: "/projects",
+	},
 ];
 
 export const FOOTER_LINKS: Link[] = [
@@ -207,8 +211,7 @@ export const POSTS_CONFIG: PostConfig = {
 	},
 	postPageConfig: {
 		size: 10,
-		type: "image",
-		coverLayout: "right",
+		type: "compact",
 	},
 	tagsPageConfig: {
 		size: 10,
@@ -255,8 +258,8 @@ export const TAGS_CONFIG: TagsConfig = {
 
 export const PROJECTS_CONFIG: ProjectConfig = {
 	title: "Projects",
-	description: "The examples of my projects.",
-	introduce: "The examples of my projects.",
+	description: "Tools and resources for working with Claude AI.",
+	introduce: "Open source tools and projects for Claude developers.",
 };
 
 export const PHOTOS_CONFIG: PhotosConfig = {

@@ -1,0 +1,218 @@
+---
+title: 'Overriding Claude Code Built-in Agents'
+description: 'How to intercept and replace Claude Code subagents using PreToolUse hooks. Swap Explore for your own agent, force model upgrades, and route tasks conditionally.'
+pubDate: 2026-02-05
+author: 'Claude Signal'
+tags: ['guides']
+draft: false
+---
+
+Claude Code ships with several built-in agents you can't directly modify. For power users, that's a problem. Some of these agents run on Haiku, which reasons worse than Opus. Here's how to bypass them and swap in your own, without breaking normal functionality.
+
+## The Built-in Agents
+
+Named exactly as they appear internally (the odd naming is Anthropic's choice):
+
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| **Explore** | Haiku | Explores the codebase. Fast but shallow. |
+| **Plan** | Inherited | Writes implementation plans using your session model. |
+| **general-purpose** | Inherited | Fallback when no specialized agent fits. |
+| **Bash** | Inherited | Executes bash commands. Minimal system prompt. |
+| **statusline-setup** | Sonnet | Configures Claude Code's status line. |
+| **claude-code-guide** | Haiku | Searches docs to answer questions about Claude Code. |
+
+"Inherited" means the agent uses whatever model you selected for the session.
+
+**Explore** and **claude-code-guide** hurt most. Both locked to Haiku. Running Opus and expecting Opus-level reasoning from subagents? Not from these two.
+
+Agent definitions, system prompts, and scripts referenced here:
+[github.com/AnExiledDev/Claude-Code-Research/tree/main/built-in-agents/v2.1.27](https://github.com/AnExiledDev/Claude-Code-Research/tree/main/built-in-agents/v2.1.27)
+(Check for newer versions. These are for Claude Code v2.1.27.)
+
+## How Agent Spawning Works
+
+When Claude Code needs a subagent, it calls the **Task** tool internally. Task accepts parameters like `subagent_type`, `prompt`, `model`, and `description`.
+
+The **PreToolUse** hook fires immediately before any tool executes, including Task. Intercept the call, rewrite its parameters before Claude Code acts on them. Swap the agent type, override the model, augment the prompt, or all three.
+
+Docs: [code.claude.com/docs/en/hooks#pretooluse](https://code.claude.com/docs/en/hooks#pretooluse)
+
+## Redirecting an Agent
+
+Two pieces: the hook configuration and a script that does the redirection.
+
+### Hook Configuration
+
+Add to `~/.claude/settings.json` (global) or `.claude/settings.json` (project scope):
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/redirect-explore.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The `matcher` targets Task specifically. Every time Claude Code spawns a subagent, your script intercepts it.
+
+### The Script (`redirect-explore.sh`)
+
+Minimal version. Checks if the agent being spawned is `Explore`, swaps it to a custom agent named `research`. Assumes you have `.claude/agents/research.md` defined.
+
+```bash
+#!/bin/bash
+# redirect-explore.sh
+# Redirects Explore agent spawns to a custom agent type.
+#
+# Install:
+#   1. Copy to .claude/hooks/ and chmod +x
+#   2. Add PreToolUse config to your .claude/settings.json
+#   3. Run `claude --debug` to verify
+
+INPUT=$(cat)
+
+SUBAGENT_TYPE=$(echo "$INPUT" | jq -r '.tool_input.subagent_type // empty')
+
+if [ "$SUBAGENT_TYPE" != "Explore" ]; then
+  exit 0
+fi
+
+# Target agent must exist in .claude/agents/
+TARGET_AGENT="research"
+
+jq -n --arg agent_type "$TARGET_AGENT" \
+  '{
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "allow",
+      permissionDecisionReason: "Redirected Explore to custom agent",
+      updatedInput: {
+        subagent_type: $agent_type
+      }
+    }
+  }'
+```
+
+Key mechanism: `updatedInput`. Fields you return here replace matching fields in the original tool input before execution. Return only what you want to change. Everything else passes through.
+
+If the agent isn't `Explore`, the script exits with code 0 and no stdout. Claude Code proceeds normally.
+
+## Going Further
+
+The advanced version does more:
+
+- Prepends instructions to the prompt (`PROMPT_PREFIX`)
+- Forces a specific model. Should also work to upgrade Explore's model WITHOUT replacing the agent (`MODEL_OVERRIDE`)
+- Routes conditionally based on prompt keywords. Security question? Send to a `security-reviewer` agent (`Conditional routing`)
+- Passes context to the agent about the redirect (`additionalContext`)
+- Logs to a specific path for debugging (`LOG_FILE`)
+
+### Advanced Script (`redirect-explore-advanced.sh`)
+
+```bash
+#!/bin/bash
+# redirect-explore-advanced.sh
+# Advanced Explore agent interception with prompt augmentation,
+# model override, and conditional routing.
+#
+# Install:
+#   1. Copy to .claude/hooks/ and chmod +x
+#   2. Add PreToolUse config to .claude/settings.json
+#      (change the command path to point to this script)
+#   3. Run `claude --debug` to verify
+
+INPUT=$(cat)
+
+SUBAGENT_TYPE=$(echo "$INPUT" | jq -r '.tool_input.subagent_type // empty')
+
+if [ "$SUBAGENT_TYPE" != "Explore" ]; then
+  exit 0
+fi
+
+ORIGINAL_PROMPT=$(echo "$INPUT" | jq -r '.tool_input.prompt // empty')
+ORIGINAL_MODEL=$(echo "$INPUT" | jq -r '.tool_input.model // empty')
+
+# --- Configuration ---
+TARGET_AGENT="research"          # must exist in .claude/agents/
+MODEL_OVERRIDE="opus"            # force a specific model (sonnet, opus, haiku)
+PROMPT_PREFIX="Follow project conventions in CLAUDE.md. Cite file paths for all findings."
+LOG_FILE="/tmp/explore-hook.log"  # set to "" to disable logging
+
+# --- Conditional routing ---
+# Route security-related prompts to a dedicated agent if it exists
+if echo "$ORIGINAL_PROMPT" | grep -qiE '(security|auth|credential|secret|vulnerabilit)'; then
+  TARGET_AGENT="security-reviewer"
+  PROMPT_PREFIX="Focus on security implications. Flag any exposed secrets or unsafe patterns."
+fi
+
+# --- Logging (optional) ---
+if [ -n "$LOG_FILE" ]; then
+  echo "[$(date -Iseconds)] Redirecting Explore → ${TARGET_AGENT} (model: ${MODEL_OVERRIDE})" >> "$LOG_FILE"
+  echo "  Original prompt: ${ORIGINAL_PROMPT:0:200}" >> "$LOG_FILE"
+fi
+
+# --- Build augmented prompt safely ---
+AUGMENTED_PROMPT=$(jq -n \
+  --arg prefix "$PROMPT_PREFIX" \
+  --arg orig "$ORIGINAL_PROMPT" \
+  '$prefix + "\n\n" + $orig')
+
+# --- Emit hook response ---
+jq -n \
+  --arg agent_type "$TARGET_AGENT" \
+  --argjson prompt "$AUGMENTED_PROMPT" \
+  --arg model "$MODEL_OVERRIDE" \
+  '{
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "allow",
+      permissionDecisionReason: ("Redirected Explore to " + $agent_type),
+      updatedInput: {
+        subagent_type: $agent_type,
+        prompt: $prompt,
+        model: $model
+      },
+      additionalContext: "This task was routed by the redirect-explore-advanced hook."
+    }
+  }'
+```
+
+## What You Can Override
+
+Full set of fields available in `updatedInput` when intercepting Task:
+
+| Field | Type | What it does |
+|-------|------|-------------|
+| `subagent_type` | string | Which agent handles the task |
+| `prompt` | string | Instructions sent to the agent |
+| `model` | string | Model to use (`sonnet`, `opus`, `haiku`) |
+| `description` | string | Short description shown in the UI |
+| `max_turns` | number | Maximum API round-trips before the agent stops |
+
+Include only fields you want to change. Everything else passes through.
+
+## Notes
+
+- Your custom agent must exist as a `.md` file in `.claude/agents/`.
+- `permissionDecision: "allow"` bypasses the permission prompt. Use `"ask"` to confirm each redirect, or `"deny"` to block specific agent spawns entirely.
+- Run `claude --debug` to verify your hook fires. Hook execution shows in debug output.
+- The `timeout` in hook config (seconds) prevents broken scripts from hanging Claude Code. 10 seconds is generous.
+
+---
+
+## Sources
+
+- [Claude Code Hooks Documentation](https://code.claude.com/docs/en/hooks)
+- [Built-in Agent Definitions (v2.1.27)](https://github.com/AnExiledDev/Claude-Code-Research/tree/main/built-in-agents/v2.1.27)

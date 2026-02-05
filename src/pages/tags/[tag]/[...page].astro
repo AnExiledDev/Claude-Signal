@@ -8,9 +8,14 @@ import List from '~/components/posts/card/List.astro'
 import { getAllPosts, getAllTags } from '~/lib/data'
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  // Predefined categories that should always have pages
+  const predefinedTags = ['signals', 'deep-dives', 'workflows', 'guides', 'rumors', 'changelog']
+
   const [allPosts, tagsMap] = await Promise.all([getAllPosts(), getAllTags()])
 
-  const uniqueTags = Object.keys(tagsMap)
+  // Combine predefined tags with any tags from posts
+  const allTags = new Set([...predefinedTags, ...Object.keys(tagsMap)])
+  const uniqueTags = Array.from(allTags)
 
   return uniqueTags
     .map((tag) => {
@@ -61,9 +66,19 @@ const description = `Posts with the tag #${tag}`
     </div>
 
     <div class="space-y-8 fade-up">
-      <List posts={page.data} type={POSTS_CONFIG.tagsPageConfig.type} coverLayout={POSTS_CONFIG.tagsPageConfig?.coverLayout} />
+      {page.data.length > 0 ? (
+        <List posts={page.data} type={POSTS_CONFIG.tagsPageConfig.type} coverLayout={POSTS_CONFIG.tagsPageConfig?.coverLayout} />
+      ) : (
+        <div class="text-center py-12">
+          <div class="text-muted-foreground/50 mb-4">
+            <span class="icon-[mdi--file-document-outline] size-16"></span>
+          </div>
+          <p class="text-muted-foreground">No posts in this category yet.</p>
+          <p class="text-muted-foreground/70 text-sm mt-2">Check back soon for new content!</p>
+        </div>
+      )}
     </div>
 
-    <Pagination {page} baseUrl={`/tags/${tag}`} class="mt-12" />
+    {page.data.length > 0 && <Pagination {page} baseUrl={`/tags/${tag}`} class="mt-12" />}
   </div>
 </Layout>

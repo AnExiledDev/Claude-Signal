@@ -1,0 +1,143 @@
+---
+title: 'How to Downgrade Claude Code to a Previous Version'
+description: 'Step-by-step guide to rolling back Claude Code when an update breaks your workflow, using both native binaries and NPM.'
+pubDate: 2026-02-05
+author: 'Claude Signal'
+tags: ['guides']
+draft: false
+---
+
+New Claude Code releases ship fast. Sometimes multiple times per day. Occasionally an update introduces regressions, breaks workflows, or changes behavior you depend on. When that happens, roll back.
+
+Here's how to downgrade both native and NPM installations.
+
+## Why Downgrade?
+
+Claude Code's rapid release cadence means any given update might:
+
+- Introduce bugs or regressions in tool execution
+- Change agent behavior or system prompts in ways that break your workflow
+- Alter hook behavior or permission handling
+- Degrade performance on specific tasks
+
+There's no built-in rollback. Handle it yourself.
+
+## Method 1: Native Installation (Binary)
+
+Native installs are the standalone binaries distributed through `code.claude.com`. To grab a previous version, use the community-maintained **Claude Code Version Archive**:
+
+**[https://alonw0.github.io/cc-versions/site/](https://alonw0.github.io/cc-versions/site/)**
+
+This site is backed by a [GitHub repository](https://github.com/alonw0/cc-versions) that automatically monitors Claude Code's official distribution endpoint every hour. When a new version is detected, it downloads all platform installers, verifies them against official SHA-256 checksums, and publishes them as GitHub Releases. The archive currently goes back to v2.0.58.
+
+### Supported Platforms
+
+Every archived version includes binaries for seven platform variants:
+
+| OS | Architecture |
+|------|-------------|
+| macOS | ARM64 (Apple Silicon) |
+| macOS | x64 (Intel) |
+| Linux | ARM64 (glibc) |
+| Linux | x64 (glibc) |
+| Linux | ARM64 (musl) |
+| Linux | x64 (musl) |
+| Windows | x64 |
+
+### How to Install a Previous Native Version
+
+1. Go to the [Releases page](https://github.com/alonw0/cc-versions/releases)
+2. Find the version you want (e.g., v2.1.23)
+3. Download the binary for your platform
+4. Make it executable and run the installer:
+
+```bash
+chmod +x claude-2.1.23-linux-x64
+./claude-2.1.23-linux-x64 install
+```
+
+The binary replaces your current native installation.
+
+## Method 2: NPM Installation
+
+If you installed via NPM, uninstall the current version and install the specific version you want:
+
+```bash
+npm uninstall -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code@2.1.23
+```
+
+Replace `2.1.23` with whatever version you're targeting. NPM handles the rest.
+
+## Preventing Auto-Updates
+
+Critical step most people miss: Claude Code has a built-in auto-updater that silently upgrades you back to the latest version on launch. Disable it **before** launching the downgraded version.
+
+Add or edit your settings file at `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "DISABLE_AUTOUPDATER": "1"
+  }
+}
+```
+
+If the file already exists with other settings, merge the `env` block into your existing configuration. For example, if you already have hooks configured:
+
+```json
+{
+  "env": {
+    "DISABLE_AUTOUPDATER": "1"
+  },
+  "hooks": {
+    ...
+  }
+}
+```
+
+The `DISABLE_AUTOUPDATER` environment variable gets injected into Claude Code's process at launch. Set to `"1"`, the auto-updater won't run.
+
+**Do this before launching the downgraded version.** Launch first, and the updater may fire before you can disable it.
+
+## Release Channels: Avoid This Next Time
+
+If you're downgrading because a recent update broke something, consider switching to the **stable** release channel. It delivers releases about a week old and automatically skips versions with known regressions.
+
+Configure via `/config` in Claude Code, or edit `~/.claude/settings.json`:
+
+```json
+{
+  "autoUpdatesChannel": "stable"
+}
+```
+
+Two options:
+- **`latest`** (default): New features immediately. Higher risk of bugs.
+- **`stable`**: ~1 week delay. Problematic versions filtered out.
+
+Run `/doctor` to check your current channel and see available versions on both.
+
+## Quick Reference
+
+**Downgrade native install:**
+1. Download binary from [cc-versions releases](https://github.com/alonw0/cc-versions/releases)
+2. `chmod +x claude-VERSION-PLATFORM && ./claude-VERSION-PLATFORM install`
+3. Set `DISABLE_AUTOUPDATER` in `~/.claude/settings.json`
+
+**Downgrade NPM install:**
+1. `npm uninstall -g @anthropic-ai/claude-code`
+2. `npm install -g @anthropic-ai/claude-code@VERSION`
+3. Set `DISABLE_AUTOUPDATER` in `~/.claude/settings.json`
+
+**Upgrade back to latest:**
+1. Remove `DISABLE_AUTOUPDATER` from settings
+2. Launch Claude Code normally (it will auto-update), or reinstall via your preferred method
+
+---
+
+## Sources
+
+- [Claude Code Version Archive](https://github.com/alonw0/cc-versions) - Community-maintained archive by [alonw0](https://github.com/alonw0), MIT licensed
+- [Release Channels FAQ](https://claudelog.com/faqs/what-is-release-channel-in-claude-code/) - claudelog.com
+- All binaries verified against official Anthropic SHA-256 checksums
