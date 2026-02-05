@@ -117,24 +117,24 @@
     max-width: var(--layout-width);
   }
 
-  /* 暗色模式变量 */
+  /* 暗色模式变量 - Techy dark with cyan/purple accents */
   .dark {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --border: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --tag-bg: 240 20% 13%;
-    --tag-bg-hover: 240 20% 25%;
-    --tag-border: 240 20% 20%;
-    --tag-text: 240 15% 85%;
-    --scrollbar: 240 10% 30%;
-    --scrollbar-bg: 240 10% 15%;
+    --background: 240 15% 6%;
+    --foreground: 210 40% 98%;
+    --accent: 270 60% 25%;
+    --accent-foreground: 210 40% 98%;
+    --primary: 185 80% 55%;
+    --primary-foreground: 240 15% 6%;
+    --muted: 240 10% 14%;
+    --muted-foreground: 215 20% 65%;
+    --border: 260 30% 18%;
+    --ring: 185 80% 55%;
+    --tag-bg: 270 40% 15%;
+    --tag-bg-hover: 270 50% 25%;
+    --tag-border: 260 40% 25%;
+    --tag-text: 185 60% 75%;
+    --scrollbar: 260 30% 35%;
+    --scrollbar-bg: 240 15% 10%;
   }
 }
 

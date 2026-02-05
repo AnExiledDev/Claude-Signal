@@ -15,6 +15,7 @@ type Props = {
 }
 
 const { title, description, image }: Props = Astro.props
+const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN
 ---
 
 <!doctype html>
@@ -30,8 +31,13 @@ const { title, description, image }: Props = Astro.props
       </main>
     </div>
     <Footer />
-    <!-- Cloudflare Web Analytics -->
-    <!-- Replace YOUR_TOKEN with your actual Cloudflare Web Analytics token -->
-    <script is:inline defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "YOUR_TOKEN"}'></script>
+    {cfAnalyticsToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token": "${cfAnalyticsToken}"}`}
+      />
+    )}
   </body>
 </html>
