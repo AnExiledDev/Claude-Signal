@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths, Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
-import { POSTS_CONFIG } from '~/config'
+import { POSTS_CONFIG, SITE } from '~/config'
 import Layout from '~/layouts/Layout.astro'
 import Pagination from '~/components/base/Pagination.astro'
 import List from '~/components/posts/card/List.astro'
@@ -36,6 +36,7 @@ interface Props {
 
 const { page, tag } = Astro.props
 const description = `Posts with the tag #${tag}`
+const base = SITE.base
 ---
 
 <Layout title={`#${tag}`} {description}>
@@ -43,7 +44,7 @@ const description = `Posts with the tag #${tag}`
     <div class="mb-12 md:mb-16">
       <div class="flex flex-col gap-3">
         <nav class="flex items-center gap-3 text-sm text-muted-foreground/80">
-          <a href="/tags" class="group flex items-center gap-2 hover:text-primary transition-colors">
+          <a href={`${base}/tags`} class="group flex items-center gap-2 hover:text-primary transition-colors">
             <span class="icon-[ph--tag-simple] w-4 h-4"></span>
             <span>Tags</span>
           </a>

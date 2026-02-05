@@ -9,12 +9,13 @@ type Props = {
 }
 
 const { title, description, image }: Props = Astro.props
+const base = SITE.base
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site)
 const ogImage = new URL(image || SITE.ogImage, Astro.url)
 ---
 
-<script is:inline src="/js/theme.js"></script>
+<script is:inline src={`${base}/js/theme.js`}></script>
 
 <!-- 页面内SEO  On-Page SEO -->
 <meta charset="UTF-8" />
@@ -32,10 +33,10 @@ const ogImage = new URL(image || SITE.ogImage, Astro.url)
 <meta name="color-scheme" content="light dark" />
 
 <!-- icon -->
-<link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href={`${base}/favicon.ico`} />
+<link rel="apple-touch-icon" sizes="180x180" href={`${base}/apple-touch-icon.png`} />
+<link rel="icon" type="image/png" sizes="32x32" href={`${base}/favicon-32x32.png`} />
+<link rel="icon" type="image/png" sizes="16x16" href={`${base}/favicon-16x16.png`} />
 
 {/* RSS Feed Link */}
 <link rel="alternate" type="application/rss+xml" title={SITE.title} href={new URL('/rss.xml', Astro.site).href} />
@@ -44,17 +45,17 @@ const ogImage = new URL(image || SITE.ogImage, Astro.url)
 
 <!-- 预加载 -->
 <!-- 中文字体启用 -->
-<!-- <link rel="stylesheet" href="/fonts/ShangguSansSC-VF/result.css" /> -->
-<link rel="preload" href="/fonts/GeistVF.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/Lexend-VariableFont_wght.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/ZhudouSansVF-subset.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/GeistMono.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<!-- <link rel="stylesheet" href={`${base}/fonts/ShangguSansSC-VF/result.css`} /> -->
+<link rel="preload" href={`${base}/fonts/GeistVF.woff2`} as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href={`${base}/fonts/Lexend-VariableFont_wght.woff2`} as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href={`${base}/fonts/ZhudouSansVF-subset.woff2`} as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href={`${base}/fonts/GeistMono.woff2`} as="font" type="font/woff2" crossorigin="anonymous" />
 
 <!-- 标准链接  Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
 <!-- Sitemap -->
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="sitemap" href={`${base}/sitemap-index.xml`} />
 
 <!-- Open Graph & Facebook -->
 <meta property="og:type" content="website" />

@@ -210,7 +210,7 @@ export async function generateRSS20(): Promise<string> {
   const processedPosts = await processPostsForFeed()
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/rss/rss-styles.xsl"?>
+<?xml-stylesheet type="text/xsl" href="${SITE.base}/rss/rss-styles.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>${escapeXml(title)}</title>
@@ -251,7 +251,7 @@ export async function generateAtom10(): Promise<string> {
   const processedPosts = await processPostsForFeed()
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/rss/atom-styles.xsl"?>
+<?xml-stylesheet type="text/xsl" href="${SITE.base}/rss/atom-styles.xsl"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>${escapeXml(title)}</title>
   <subtitle>${escapeXml(description)}</subtitle>

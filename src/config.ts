@@ -25,53 +25,56 @@ export const SITE: Site = {
 	transition: false,
 };
 
+// Helper to prefix URLs with base path
+const withBase = (path: string) => `${SITE.base}${path}`;
+
 export const HEADER_LINKS: Link[] = [
 	{
 		name: "Posts",
-		url: "/posts",
+		url: withBase("/posts"),
 	},
 	{
 		name: "Categories",
-		url: "/tags",
+		url: withBase("/tags"),
 	},
 	{
 		name: "Projects",
-		url: "/projects",
+		url: withBase("/projects"),
 	},
 ];
 
 export const FOOTER_LINKS: Link[] = [
 	{
 		name: "Home",
-		url: "/",
+		url: withBase("/"),
 	},
 	{
 		name: "Signals",
-		url: "/tags/signals",
+		url: withBase("/tags/signals"),
 	},
 	{
 		name: "Deep Dives",
-		url: "/tags/deep-dives",
+		url: withBase("/tags/deep-dives"),
 	},
 	{
 		name: "Workflows",
-		url: "/tags/workflows",
+		url: withBase("/tags/workflows"),
 	},
 	{
 		name: "Rumors",
-		url: "/tags/rumors",
+		url: withBase("/tags/rumors"),
 	},
 	{
 		name: "Guides",
-		url: "/tags/guides",
+		url: withBase("/tags/guides"),
 	},
 	{
 		name: "Changelog",
-		url: "/tags/changelog",
+		url: withBase("/tags/changelog"),
 	},
 	{
 		name: "All Tags",
-		url: "/tags",
+		url: withBase("/tags"),
 	},
 ];
 

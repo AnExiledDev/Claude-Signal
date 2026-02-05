@@ -1,5 +1,5 @@
 ---
-import { HEADER_LINKS } from '~/config'
+import { HEADER_LINKS, SITE } from '~/config'
 import ThemeToggle from '~/components/theme/ThemeToggle'
 import HeaderGradient from '~/components/theme/HeaderGradient.astro'
 import SectionDivider from '~/components/base/SectionDivider.astro'
@@ -7,13 +7,15 @@ import HeaderLink from '~/components/base/HeaderLink.astro'
 import SearchSwitch from '~/components/base/SearchSwitch.astro'
 import { Image } from 'astro:assets'
 import logo from '../../public/logo.png'
+
+const base = SITE.base
 ---
 
 <HeaderGradient />
 <header>
   <div class="mx-auto global-layout-width flex justify-between px-6 sm:px-8 py-4 lg:px-8">
     <div class="flex gap-3 sm:gap-6 items-center flex-shrink-0">
-      <a href="/" class="pointer-events-auto select-none flex items-center gap-2" transition:persist>
+      <a href={`${base}/`} class="pointer-events-auto select-none flex items-center gap-2" transition:persist>
         <Image
           src={logo}
           width={36}
@@ -39,7 +41,7 @@ import logo from '../../public/logo.png'
     <div class="flex gap-2 items-center" transition:persist="header-theme-toggle">
       <SearchSwitch />
       <a
-        href="/atom.xml"
+        href={`${base}/atom.xml`}
         target="_blank"
         class="inline-flex items-center hover:scale-105 size-5 origin-center"
         aria-label="RSS Feed"
