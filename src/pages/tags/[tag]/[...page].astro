@@ -80,6 +80,6 @@ const base = SITE.base
       )}
     </div>
 
-    {page.data.length > 0 && <Pagination {page} baseUrl={`/tags/${tag}`} class="mt-12" />}
+    {page.data.length > 0 && <Pagination {page} baseUrl={`${base}/tags/${tag}`} class="mt-12" />}
   </div>
 </Layout>

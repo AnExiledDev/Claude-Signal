@@ -1,11 +1,13 @@
 ---
 import { formatDate } from '~/lib/utils'
+import { SITE } from '~/config'
 import Badge from '~/components/posts/base/Badge.astro'
 import type { CardProps } from './List.astro'
 
 interface Props extends CardProps {}
 
 const { post, class: className, style }: Props = Astro.props
+const base = SITE.base
 ---
 
 <div class:list={['group relative block py-6 border-b border-border/60 last:border-none', className]} {style}>
@@ -28,7 +30,7 @@ const { post, class: className, style }: Props = Astro.props
         )
       }
     </div>
-    <a href={`/posts/${post.id}`} class="block">
+    <a href={`${base}/posts/${post.id}`} class="block">
       <div class="text-base font-semibold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2">
         {post.data.title}
       </div>
